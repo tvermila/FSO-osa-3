@@ -1,16 +1,3 @@
-const mongoose = require('mongoose')
-const urlFile = require('./pwd.js')
-
-
-// korvaa url oman tietokantasi urlilla. ethän laita salasanaa Githubiin!
-const url = haeURL()
-
-mongoose.connect(url)
-
-const Person = mongoose.model('Person', {
-  name: String,
-  number: String
-})
 
 //uuden henkilön tallennus kantaan
 if(process.argv.length > 2){
