@@ -13,30 +13,6 @@ morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :data :status :res[content-length] - :response-time ms'))
 app.use(bodyParser.json())
 
-/*
-let persons = [
-    {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": 1
-    },
-    {
-      "name": "Martti Tienari",
-      "number": "040-123456",
-      "id": 2
-    },
-    {
-      "name": "Arto Järvinen",
-      "number": "040-123456",
-      "id": 3
-    },
-    {
-      "name": "Lea Kutvonen",
-      "number": "040-123456",
-      "id": 4
-    }
-  ]
-*/
   const info = () => {
     const maara = persons.length
     const pvm = new Date()
@@ -91,13 +67,10 @@ app.get('/info', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  console.log("deleten id:", req.params.id)
+  console.log("api.delete() poistettava id:", req.params.id)
   Person    
-    .findById(req.params.id)
-    console.log("deleten id:", req.params.id)
-    .remove()
+    .findOneAndRemove(req.params.id)
     .then(person => {
-      console.log(person)
       res.status(204).end()
     })
     .catch(error => {
@@ -107,19 +80,20 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {    
     const body = req.body
-    const p = persons.filter(p => p.name === body.name)
+/*    const p = persons.filter(p => p.name === body.name)
     if(body.name === undefined || body.number === undefined) {
       return res.status(400).json({ error: 'content missing!' })
     }else if(p.length > 0) {
       return res.status(400).json({ error: "name must be unique!" })
-    }
+    }*/
     const newPerson = new Person({
       name: body.name,
       number: body.number
     })    
-    person
+    newPerson
       .save()
       .then(savedPerson => {
+        console.log('tallennettu uusi henkilö:', savedPerson)
         res.json(formatPerson(savedPerson))
       })
       .catch(error => {
