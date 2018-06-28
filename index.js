@@ -13,17 +13,6 @@ morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :data :status :res[content-length] - :response-time ms'))
 app.use(bodyParser.json())
 
-  const info = () => {
-    const maara = persons.length
-    const pvm = new Date()
-    console.log('määrä:', maara)
-    response = `
-                <p>Puhelinluettelossa on ${maara} henkilön tiedot</p>
-                <p>${pvm}</p>
-                `
-    return response
-  }
-
   const generateId = () => {
     return Math.floor(Math.random() * 10000)
   }
@@ -63,7 +52,22 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-    res.send(info())
+  Person
+  .find({})
+  .then(persons => {
+    const maara = persons.length
+    const pvm = new Date()
+    console.log('määrä:', maara)
+    response = `
+                <p>Puhelinluettelossa on ${maara} henkilön tiedot</p>
+                <p>${pvm}</p>
+                `
+    console.log(response)
+    res.send(response)
+  })
+  .catch(error => {
+    console.log('error:',error)
+  }) 
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -81,12 +85,6 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {    
     const body = req.body
-/*    const p = persons.filter(p => p.name === body.name)
-    if(body.name === undefined || body.number === undefined) {
-      return res.status(400).json({ error: 'content missing!' })
-    }else if(p.length > 0) {
-      return res.status(400).json({ error: "name must be unique!" })
-    }*/
     const newPerson = new Person({
       name: body.name,
       number: body.number
@@ -100,6 +98,20 @@ app.post('/api/persons', (req, res) => {
       .catch(error => {
         console.log('error:', error)
       })  
+})
+
+app.put('/api/persons/:id', (req, res) => {
+  const person = req.body
+  const id = req.params.id
+  Person
+    .findByIdAndUpdate(id, person, { new: true } )
+    .then(updatedPerson => {
+      console.log('Päivitetty henkilö:', updatedPerson)
+      res.json(formatPerson(updatedPerson))
+    })
+    .catch(error => {
+      console.log('error:', error)
+    }) 
 })
 
 const error = (request, response) => {
