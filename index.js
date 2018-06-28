@@ -69,8 +69,9 @@ app.get('/info', (req, res) => {
 app.delete('/api/persons/:id', (req, res) => {
   console.log("api.delete() poistettava id:", req.params.id)
   Person    
-    .findOneAndRemove(req.params.id)
+    .findByIdAndRemove(req.params.id)
     .then(person => {
+      console.log('poistettu henkilö:\n', formatPerson(person))
       res.status(204).end()
     })
     .catch(error => {
