@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const urlFile = require('../pwd.js')
 
 const url = process.env.MONGODB_URI
 
