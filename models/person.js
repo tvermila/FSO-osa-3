@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const urlFile = require('../pwd.js')
 
-const url = haeURL()
+const url = process.env.MONGODB_URI
 
 mongoose.connect(url)
 
