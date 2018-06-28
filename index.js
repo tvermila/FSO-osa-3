@@ -5,14 +5,6 @@ const app = express()
 const cors = require('cors')
 const Person = require('./models/person')
 
-const formatPerson = (person) => {
-  return {
-    name: person.name,
-    number: person.number,
-    id: person.id
-  }
-}
-
 app.use(cors())
 
 app.use(express.static('build'))
@@ -21,7 +13,7 @@ morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :data :status :res[content-length] - :response-time ms'))
 app.use(bodyParser.json())
 
-
+/*
 let persons = [
     {
       "name": "Arto Hellas",
@@ -44,7 +36,7 @@ let persons = [
       "id": 4
     }
   ]
-
+*/
   const info = () => {
     const maara = persons.length
     const pvm = new Date()
@@ -60,6 +52,14 @@ let persons = [
     return Math.floor(Math.random() * 10000)
   }
 
+  const formatPerson = (person) => {
+    return {
+      name: person.name,
+      number: person.number,
+      id: person._id
+    }
+  }
+
 app.get('/api', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
@@ -69,18 +69,21 @@ app.get('/api/persons', (req, res) => {
     .find({})
     .then(persons => {
       res.json(persons.map(formatPerson))
+    })
+    .catch(error => {
+      console.log('error:',error)
     })  
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(p => p.id === id)
-    if(person) {
-        res.json(person)
-    }else {
-        res.status(404).end()
-    }
-    
+  Person
+    .findById(req.params.id)
+    .then(person => {
+      res.json(formatPerson(person))
+    })
+    .catch(error => {
+      console.log('error:',error)
+    })      
 })
 
 app.get('/info', (req, res) => {
@@ -88,9 +91,18 @@ app.get('/info', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(p => p.id !== id)
-    res.status(204).end()
+  console.log("deleten id:", req.params.id)
+  Person    
+    .findById(req.params.id)
+    console.log("deleten id:", req.params.id)
+    .remove()
+    .then(person => {
+      console.log(person)
+      res.status(204).end()
+    })
+    .catch(error => {
+      console.log(error)
+    })
 })
 
 app.post('/api/persons', (req, res) => {    
@@ -101,13 +113,18 @@ app.post('/api/persons', (req, res) => {
     }else if(p.length > 0) {
       return res.status(400).json({ error: "name must be unique!" })
     }
-    const newPerson = {
+    const newPerson = new Person({
       name: body.name,
-      number: body.number,
-      id: generateId()
-    }    
-    persons = persons.concat(newPerson)
-    res.json(newPerson)
+      number: body.number
+    })    
+    person
+      .save()
+      .then(savedPerson => {
+        res.json(formatPerson(savedPerson))
+      })
+      .catch(error => {
+        console.log('error:', error)
+      })  
 })
 
 const error = (request, response) => {
