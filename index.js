@@ -84,20 +84,33 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {    
-    const body = req.body
+    const nimi = req.body.name
+    const numero = req.body.number
     const newPerson = new Person({
-      name: body.name,
-      number: body.number
-    })    
-    newPerson
-      .save()
-      .then(savedPerson => {
-        console.log('tallennettu uusi henkilö:', savedPerson)
-        res.json(formatPerson(savedPerson))
-      })
-      .catch(error => {
-        console.log('error:', error)
-      })  
+      name: nimi,
+      number: numero
+    }) 
+    Person
+    .find({ name: nimi })
+    .then(result => {
+      if(result.length > 0){
+        console.log('VIRHE: kannasta löytyi jo henkilö samalla nimellä!')
+        res.status(409).send({ error: `confict - ${newPerson.name} is already in the database` })
+      }else {
+        newPerson
+        .save()
+        .then(savedPerson => {
+          console.log('tallennettu uusi henkilö:', savedPerson)
+          res.json(formatPerson(savedPerson))
+        })
+        .catch(error => {
+          console.log('error:', error)
+        })          
+      }
+    }) 
+    .catch(error => {
+      console.log('error:', error)
+    })     
 })
 
 app.put('/api/persons/:id', (req, res) => {
