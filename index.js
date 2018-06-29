@@ -9,21 +9,22 @@ app.use(cors())
 
 app.use(express.static('build'))
 
-morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
+morgan.token('data', function (req) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :data :status :res[content-length] - :response-time ms'))
 app.use(bodyParser.json())
 
+/*
   const generateId = () => {
     return Math.floor(Math.random() * 10000)
   }
-
-  const formatPerson = (person) => {
-    return {
-      name: person.name,
-      number: person.number,
-      id: person._id
-    }
+*/
+const formatPerson = (person) => {
+  return {
+    name: person.name,
+    number: person.number,
+    id: person._id
   }
+}
 
 app.get('/api', (req, res) => {
   res.send('<h1>Hello World!</h1>')
@@ -37,7 +38,7 @@ app.get('/api/persons', (req, res) => {
     })
     .catch(error => {
       console.log('error:',error)
-    })  
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -48,31 +49,31 @@ app.get('/api/persons/:id', (req, res) => {
     })
     .catch(error => {
       console.log('error:',error)
-    })      
+    })
 })
 
 app.get('/info', (req, res) => {
   Person
-  .find({})
-  .then(persons => {
-    const maara = persons.length
-    const pvm = new Date()
-    console.log('määrä:', maara)
-    response = `
+    .find({})
+    .then(persons => {
+      const maara = persons.length
+      const pvm = new Date()
+      console.log('määrä:', maara)
+      let response = `
                 <p>Puhelinluettelossa on ${maara} henkilön tiedot</p>
                 <p>${pvm}</p>
                 `
-    console.log(response)
-    res.send(response)
-  })
-  .catch(error => {
-    console.log('error:',error)
-  }) 
+      console.log(response)
+      res.send(response)
+    })
+    .catch(error => {
+      console.log('error:',error)
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  console.log("api.delete() poistettava id:", req.params.id)
-  Person    
+  console.log('api.delete() poistettava id:', req.params.id)
+  Person
     .findByIdAndRemove(req.params.id)
     .then(person => {
       console.log('poistettu henkilö:\n', formatPerson(person))
@@ -83,14 +84,14 @@ app.delete('/api/persons/:id', (req, res) => {
     })
 })
 
-app.post('/api/persons', (req, res) => {    
-    const nimi = req.body.name
-    const numero = req.body.number
-    const newPerson = new Person({
-      name: nimi,
-      number: numero
-    }) 
-    Person
+app.post('/api/persons', (req, res) => {
+  const nimi = req.body.name
+  const numero = req.body.number
+  const newPerson = new Person({
+    name: nimi,
+    number: numero
+  })
+  Person
     .find({ name: nimi })
     .then(result => {
       if(result.length > 0){
@@ -98,19 +99,19 @@ app.post('/api/persons', (req, res) => {
         res.status(409).send({ error: `confict - ${newPerson.name} is already in the database` })
       }else {
         newPerson
-        .save()
-        .then(savedPerson => {
-          console.log('tallennettu uusi henkilö:', savedPerson)
-          res.json(formatPerson(savedPerson))
-        })
-        .catch(error => {
-          console.log('error:', error)
-        })          
+          .save()
+          .then(savedPerson => {
+            console.log('tallennettu uusi henkilö:', savedPerson)
+            res.json(formatPerson(savedPerson))
+          })
+          .catch(error => {
+            console.log('error:', error)
+          })
       }
-    }) 
+    })
     .catch(error => {
       console.log('error:', error)
-    })     
+    })
 })
 
 app.put('/api/persons/:id', (req, res) => {
@@ -124,11 +125,11 @@ app.put('/api/persons/:id', (req, res) => {
     })
     .catch(error => {
       console.log('error:', error)
-    }) 
+    })
 })
 
 const error = (request, response) => {
-  response.status(404).send({error: 'unknown endpoint'})
+  response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(error)

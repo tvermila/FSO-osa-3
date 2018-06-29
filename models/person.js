@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 require('dotenv').config()
 
-const url = process.env.MONGODB_URI
+const url = process.env.MONGODB_URI_DEV
 
 mongoose.connect(url)
 
@@ -11,6 +11,6 @@ const Person = mongoose.model('Person', personSchema)
 personSchema.statics.format = function() {
   return this.model({ name: this.name, number: this.number, id: this._id })
 
-  }
+}
 
 module.exports = Person
