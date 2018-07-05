@@ -13,19 +13,6 @@ morgan.token('data', function (req) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :data :status :res[content-length] - :response-time ms'))
 app.use(bodyParser.json())
 
-/*
-  const generateId = () => {
-    return Math.floor(Math.random() * 10000)
-  }
-*/
-const formatPerson = (person) => {
-  return {
-    name: person.name,
-    number: person.number,
-    id: person._id
-  }
-}
-
 app.get('/api', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
@@ -34,7 +21,8 @@ app.get('/api/persons', (req, res) => {
   Person
     .find({})
     .then(persons => {
-      res.json(persons.map(formatPerson))
+      res.json(persons.map(Person.format))
+      console.log('HENKILÖT SAATU:',persons.map(Person.format))
     })
     .catch(error => {
       console.log('error:',error)
@@ -45,7 +33,7 @@ app.get('/api/persons/:id', (req, res) => {
   Person
     .findById(req.params.id)
     .then(person => {
-      res.json(formatPerson(person))
+      res.json(Person.format(person))
     })
     .catch(error => {
       console.log('error:',error)
@@ -76,7 +64,7 @@ app.delete('/api/persons/:id', (req, res) => {
   Person
     .findByIdAndRemove(req.params.id)
     .then(person => {
-      console.log('poistettu henkilö:\n', formatPerson(person))
+      console.log('poistettu henkilö:\n', Person.format(person))
       res.status(204).end()
     })
     .catch(error => {
@@ -102,7 +90,7 @@ app.post('/api/persons', (req, res) => {
           .save()
           .then(savedPerson => {
             console.log('tallennettu uusi henkilö:', savedPerson)
-            res.json(formatPerson(savedPerson))
+            res.json(Person.format(savedPerson))
           })
           .catch(error => {
             console.log('error:', error)
@@ -121,7 +109,7 @@ app.put('/api/persons/:id', (req, res) => {
     .findByIdAndUpdate(id, person, { new: true } )
     .then(updatedPerson => {
       console.log('Päivitetty henkilö:', updatedPerson)
-      res.json(formatPerson(updatedPerson))
+      res.json(Person.format(updatedPerson))
     })
     .catch(error => {
       console.log('error:', error)
